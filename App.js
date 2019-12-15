@@ -22,7 +22,6 @@ var config = {
 firebase.initializeApp(config);
 
 import AppNavigator from './navigation/AppNavigator';
-import Guest from './navigation/Guest';
 
 export default class App extends React.Component {
   constructor(props) {
@@ -34,21 +33,14 @@ export default class App extends React.Component {
     }
   }
 
-  
-
-
-  _bootstrapAsync = async () => {
-    await firebase.auth().onAuthStateChanged(user => {
-      this.props.navigation.navigate(user ? 'App' : 'Auth');
-    })
-  };
-
   async componentDidMount() {
+    //Loading assets
     await Promise.all([
       Asset.loadAsync([
         require('./assets/images/robot-dev.png'),
         require('./assets/images/robot-prod.png'),
       ]),
+      //Loading Fonts
       Font.loadAsync({
         // This is the font that we are using for our tab bar
         Roboto: require('native-base/Fonts/Roboto.ttf'),
@@ -61,7 +53,7 @@ export default class App extends React.Component {
     ]);
   }
 
-
+//render App navigator
   render() {
     return (
       <View style={styles.container}>

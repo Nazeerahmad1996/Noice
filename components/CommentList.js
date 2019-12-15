@@ -7,15 +7,11 @@ import * as firebase from 'firebase';
 
 // import avatar from '../../assets/images/avatar.png';
 
+
+//this View is for comment
 export default class CommentList extends Component {
     render() {
         const { comment } = this.props;
-        var user = firebase.auth().currentUser;
-        var photoUrl;
-
-        if (user != null) {
-            photoUrl = user.photoURL;
-        }
         return (
 
             <ListItem style={{ marginBottom: 15, marginLeft: 0 }}>

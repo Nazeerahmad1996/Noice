@@ -5,6 +5,8 @@ import * as firebase from 'firebase';
 import CommentEmpty from "../components/CommentEmpty";
 import CommentList from "../components/CommentList";
 
+
+//Post Comment Component
 export default class PostComments extends Component {
 	constructor() {
 		super();
@@ -15,6 +17,8 @@ export default class PostComments extends Component {
 	}
 
 	componentDidMount() {
+
+		//Comment save in database
 		firebase.database().ref(`postComments/${this.props.postId}`).on('value', snapshot => {
 			let comments = [];
 			snapshot.forEach(row => {

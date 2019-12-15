@@ -2,8 +2,6 @@ import * as WebBrowser from 'expo-web-browser';
 import React, { useState } from 'react';
 import {
     Image,
-    Platform,
-    ScrollView,
     StyleSheet,
     TouchableOpacity,
     View,
@@ -15,30 +13,35 @@ import * as firebase from 'firebase';
 import Feather from 'react-native-vector-icons/Feather';
 
 export default function Register(props) {
-
+    //states declared
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [confirmPassword, setconfirmPassword] = useState('');
     const [password, setPassword] = useState('');
     const [Loading, setLoading] = useState(false)
 
+    //SignUp function
     SignUp = () => {
         setLoading(true)
         if (confirmPassword === password) {
             if (email != '' && username != '' && password != '') {
+                //SignUp with email and password
                 firebase.auth().createUserWithEmailAndPassword(email, password).then((response) => {
                     setLoading(false)
                     var userId = firebase.auth().currentUser.uid
                     props.navigation.navigate("Home")
+
+                    //Update Database
                     firebase.database().ref('users/' + userId).set({
                         Name: username,
                         Email: email,
                         Uid: userId,
                     });
+
+                    //Update Profile
                     firebase.auth().currentUser.updateProfile({
                         displayName: username,
                     }).then(() => {
-                        console.log("This is my Display name: " +firebase.auth().currentUser.displayName)
                     }).catch(function (error) {
                         Alert.alert(error.message);
                     });
@@ -57,6 +60,9 @@ export default function Register(props) {
             Alert.alert("Password didn't matched!");
         }
     }
+
+    //Conditional Rendering
+    //If loading then show first Compoent or second one
 
     if (Loading) {
         return (

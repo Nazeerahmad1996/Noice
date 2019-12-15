@@ -19,11 +19,17 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import * as firebase from 'firebase';
 import { NavigationActions } from 'react-navigation';
 import PostModel from '../Models/Post'
+import PostController from '../Controller/PostController'
+
+//Main Home page
 export default class HomeScreen extends React.Component {
 
   constructor() {
     super();
+    //Model Object
     this.postModel = new PostModel();
+
+    //states declared
     this.state = {
       height: 0,
       LoadData: [],
@@ -40,23 +46,43 @@ export default class HomeScreen extends React.Component {
   async componentDidMount() {
     var that = this
     this.setState({ Loading: true })
+
+    //get jobs from database
     firebase
       .database()
       .ref('Job')
       .on("value", snapshot => {
         const data = snapshot.val()
-        const count = snapshot.numChildren();
         if (snapshot.val()) {
-          const initMessages = [];
+          var getPost = [];
           Object
             .keys(data)
-            .forEach(message => initMessages.push(data[message]));
+            .forEach(message => {
 
-          var reversed = initMessages.reverse()
-          this.setState({ LoadData: reversed })
+              // post object and push data into it
+              var post = new PostModel();
+              post.Description = data[message].Description;
+              post.Name = data[message].Name;
+              post.User = data[message].User;
+              post.Email = data[message].Email;
+              post.LikeCount = data[message].LikeCount;
+              post.Node = data[message].Node;
+
+              //push object into array
+              getPost.push(post);
+
+            })
+
+          //reversed the array
+          var reversed1 = getPost.reverse()
+
+          //Call funtion from the controller and set array
+          PostController.setListPost(reversed1);
         }
         this.setState({ Loading: false })
       });
+
+    //getting user data from database
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
         firebase.database().ref('users').child(firebase.auth().currentUser.uid).once('value').then(function (snapshot) {
@@ -68,24 +94,21 @@ export default class HomeScreen extends React.Component {
     })
   }
 
+  //Get Name from the post and pick the first character and convert to uppercase and return it
   Capitalize(str) {
-    return str.charAt(0).toUpperCase();
+    if (str != '' || str != null) {
+      return String(str).charAt(0).toUpperCase();
+    }
+    else return null;
+
   }
 
+  //Render Row for Flatlist
   renderRow = ({ item, index }) => {
     var user = firebase.auth().currentUser.uid;
-    var UserEmail = firebase.auth().currentUser.email;
-    var count = 0;
-    firebase
-      .database()
-      .ref('postComments').child(item.Node)
-      .on("value", snapshot => {
-        count = snapshot.numChildren();
-      });
     return (
       <View style={{ margin: 5, marginVertical: 5 }}>
         <Card>
-
           <CardItem>
             <Left>
               <LinearGradient colors={gradients[(index % gradients.length)]}
@@ -144,7 +167,7 @@ export default class HomeScreen extends React.Component {
     )
   }
 
-
+  //Go to Detail Page
   PostDetails(item) {
     const navigateAction = NavigationActions.navigate({
       routeName: 'PostDetailsScreen',
@@ -153,7 +176,7 @@ export default class HomeScreen extends React.Component {
     this.props.navigation.dispatch(navigateAction);
   }
 
-
+  //Signout funtion
   SignOut = () => {
     firebase.auth().signOut()
       .then(() => {
@@ -164,31 +187,24 @@ export default class HomeScreen extends React.Component {
       })
   }
 
+  //When Upload Job this funtion called;
   UploadJob = () => {
     this.setState({ Loading: true })
     var user = firebase.auth().currentUser.uid;
+
+
     this.postModel.Description = this.state.Description;
     this.postModel.Name = this.state.userName;
     this.postModel.User = this.state.uid;
     this.postModel.Email = this.state.email;
-    this.postModel.Likes = this.state.CountOfLikes;
-    console.log(this.postModel);
+
+    console.log(this.postModel)
     setTimeout(() => {
       var UserEmail = firebase.auth().currentUser.email;
-      var userName = firebase.auth().currentUser.displayName;
       var nodeName = 'Job';
-      console.log(userName)
       if (this.state.Description != null) {
 
-        var newPostRef = firebase.database().ref(nodeName).push({
-          Email: UserEmail,
-          User: user,
-          Name: this.state.userName,
-          Description: this.state.Description,
-          Date: new Date().toDateString(),
-          Node: "null",
-          Likes: 0,
-        }).then((data) => {
+        var newPostRef = firebase.database().ref(nodeName).push(this.postModel).then((data) => {
           this.setState({ Loading: false })
           Alert.alert(
             'Upload Successfully'
@@ -215,7 +231,7 @@ export default class HomeScreen extends React.Component {
     }, 2000);
   }
 
-
+  //delete post function
   DeletePost = async (item) => {
     var userId = firebase.auth().currentUser.uid;
     await firebase.database().ref('Job').child(item.Node).remove(function (error) {
@@ -228,7 +244,7 @@ export default class HomeScreen extends React.Component {
     })
   }
 
-
+  //Like funtion
   Like = async (item) => {
     var user = firebase.auth().currentUser.uid;
     var count;
@@ -240,7 +256,7 @@ export default class HomeScreen extends React.Component {
       firebase
         .database()
         .ref('Job').child(item.Node).child("Likes")
-        .on("value", snapshot => {
+        .once("value", snapshot => {
           count = snapshot.numChildren();
           firebase.database().ref('Job').child(item.Node).update({
             LikeCount: count,
@@ -259,27 +275,6 @@ export default class HomeScreen extends React.Component {
   }
 
 
-  HandleMore = () => {
-
-  }
-  LoaderFooter = () => {
-    return (
-      null
-    )
-    // if (this.state.messages.length > this.state.index) {
-    //   return (
-    //     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-    //       <ActivityIndicator style={{ height: 80 }} size="large" color="#f39c12" />
-    //     </View>
-
-    //   )
-    // } else {
-    //   return (
-    //     null
-    //   )
-    // }
-
-  }
   render() {
 
     if (this.state.Loading) {
@@ -299,12 +294,9 @@ export default class HomeScreen extends React.Component {
           <View style={{ marginTop: 10, flexDirection: 'row', backgroundColor: '#fff', borderBottomColor: '#d1d5da', borderBottomWidth: 1, paddingHorizontal: 10, paddingVertical: 6, justifyContent: 'center', alignItems: 'center' }}>
             <Input multiline={true}
               style={[styles.default, { height: Math.max(35, this.state.height), flex: 1, }]}
-              // style={{ justifyContent: 'center', alignItems: 'center' }}
-              // rowSpan={2}
               placeholder='Post Job'
               placeholderTextColor='#d1d5da'
               onContentSizeChange={(event) => {
-                // this.setState(event.nativeEvent.contentSize.height)
                 this.setState({ height: event.nativeEvent.contentSize.height })
               }}
               onChangeText={(Description) => this.setState({ Description: Description })}
@@ -320,14 +312,10 @@ export default class HomeScreen extends React.Component {
           <View style={{ flex: 1 }}>
             <FlatList
               showsVerticalScrollIndicator={false}
-              data={this.state.LoadData}
+              data={PostController.data}
               initialNumToRender={4}
               extraData={this.state}
               renderItem={this.renderRow}
-              onEndReached={this.HandleMore}
-              onEndReachedThreshold={0.5}
-              ListFooterComponent={this.LoaderFooter}
-              onMomentumScrollBegin={() => { this.onEndReachedCalledDuringMomentum = false; }}
               keyExtractor={(item, index) => index.toString()}
 
             />

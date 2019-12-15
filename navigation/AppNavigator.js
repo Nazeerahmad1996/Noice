@@ -10,7 +10,7 @@ import Login from '../screens/Login'
 import SignUp from '../screens/SignUp'
 import Loader from '../screens/Loader'
 
-
+//After Login Navigator
 const AppStack = createStackNavigator({
   Home: {
     screen: Home,
@@ -22,6 +22,8 @@ const AppStack = createStackNavigator({
     screen: PostDetailsScreen
   }
 });
+
+//Before Login Navigator
 const AuthStack = createStackNavigator({
   Login: {
     screen: Login,
@@ -44,26 +46,3 @@ export default createAppContainer(
     }
   )
 );
-
-// const AppNavigator = createStackNavigator({
-//   Home: {
-//     screen: Home,
-//   },
-//   LogoutScreen: {
-//     screen: LogoutScreen,
-//   },
-//   PostDetailsScreen: {
-//     screen: PostDetailsScreen
-//   }
-// });
-
-// export default createAppContainer(AppNavigator);
-
-// export default createAppContainer(
-//   createSwitchNavigator({
-//     // You could add another route here for authentication.
-//     // Read more at https://reactnavigation.org/docs/en/auth-flow.html
-//     Login: Login,
-//     Home: Home,
-//   })
-// );

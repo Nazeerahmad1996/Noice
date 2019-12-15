@@ -15,16 +15,21 @@ import Octicons from 'react-native-vector-icons/Octicons';
 import * as firebase from 'firebase';
 
 export default function Login(props) {
-
+    //declared states
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [Loading, setLoading] = useState(false)
-
+    
+    //SignIn function
     SignIn = async () => {
         setLoading(true)
         if (email != '' && password != '') {
+
+            //SingIn with email and pass.
             firebase.auth().signInWithEmailAndPassword(email, password).then((response) => {
                 setLoading(false)
+
+                //Navigate.
                 props.navigation.navigate("Home")
             }).catch(function (error) {
                 setLoading(false)
@@ -35,6 +40,9 @@ export default function Login(props) {
             Alert.alert("Fill Form Properly!");
         }
     }
+
+
+    //If loading true then this component will run
     if (Loading) {
         return (
             <View style={[styles.container, styles.horizontal]}>
@@ -42,6 +50,8 @@ export default function Login(props) {
             </View>
         )
     }
+
+    //if Loading false then this component
     else {
         return (
             <View style={styles.container}>

@@ -1,3 +1,5 @@
+
+//Post Model
 export default class Post {
     constructor(Description, User,Name,Email) {
         this.Email = Email;
@@ -6,6 +8,6 @@ export default class Post {
         this.Description = Description;
         this.Date = new Date().toDateString();
         this.Node = "null";
-        this.Likes = 0;
+        this.LikeCount = 0;
     }
 }

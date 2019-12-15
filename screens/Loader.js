@@ -5,7 +5,11 @@ const { width, height } = Dimensions.get('window');
 
 export default class AppPreLoader extends Component {
 
+    //Intial Route Page
+
     _bootstrapAsync = async () => {
+        //Check if user is logged in or not
+        //if logged in then Logged in Navigator run else signIn 
         await firebase.auth().onAuthStateChanged(user => {
             this.props.navigation.navigate(user ? 'App' : 'Auth');
         })
@@ -14,7 +18,7 @@ export default class AppPreLoader extends Component {
     async componentDidMount() {
         this._bootstrapAsync();
     }
-
+    //Loader
     render() {
         return (
             <View style={[styles.preloader]}>

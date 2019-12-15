@@ -6,6 +6,8 @@ import { View, StyleSheet, Alert } from "react-native";
 import { Button, Text } from 'native-base';
 import * as firebase from 'firebase';
 
+//Form View For Comment
+
 export default class PostForm extends Component {
     constructor() {
         super();
@@ -28,7 +30,6 @@ export default class PostForm extends Component {
             firebase.database().ref('users').child(firebase.auth().currentUser.uid).once('value').then(function (snapshot) {
                 userN = snapshot.val() && snapshot.val().Name;
                 that.setState({userName:userN});
-                console.log(userN)
                 that.setState((prevState, props) => {
                     return {
                         comment: {
